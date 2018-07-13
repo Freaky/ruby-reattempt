@@ -28,15 +28,15 @@ module Reattempt
 
     option :min_delay,
            default: -> { 0.02 },
-           type: Dry::Types['strict.float']
+           type: Dry::Types['strict.float'].constrained(gteq: 0)
 
     option :max_delay,
            default: -> { 1.0 },
-           type: Dry::Types['strict.float']
+           type: Dry::Types['strict.float'].constrained(gteq: 0)
 
     option :jitter,
            default: -> { 0.2 },
-           type: Dry::Types['strict.float'].constrained(lt: 1, gt: 0)
+           type: Dry::Types['strict.float'].constrained(lt: 1, gteq: 0)
 
     # Iterate over calls to +delay_for_attempt+ with a counter.  If no block
     # given, return an +Enumerator+.
@@ -82,11 +82,11 @@ module Reattempt
 
     option :retries,
            default: -> { 5 },
-           type: Dry::Types['strict.integer']
+           type: Dry::Types['strict.integer'].constrained(gt: 0)
 
     option :catch,
            default: -> { StandardError },
-           type: Dry::Types['coercible.array']
+           type: Dry::Types['coercible.array'].constrained(min_size: 1)
 
     option :backoff,
            default: -> { Backoff.new },
@@ -104,6 +104,7 @@ module Reattempt
 
       last_exception = nil
 
+      # rubocop:disable Lint/RescueException, Style/CaseEquality
       backoff.lazy.take(retries).each_with_index do |delay, try|
         return yield(try + 1)
       rescue Exception => e
@@ -111,6 +112,7 @@ module Reattempt
         last_exception = e
         sleep delay
       end
+      # rubocop:enable Lint/RescueException, Style/CaseEquality
 
       raise RetriesExceeded, cause: last_exception
     end
