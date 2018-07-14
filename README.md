@@ -18,6 +18,22 @@ Or install it yourself as:
 
     $ gem install reattempt
 
+## Synopsis
+
+Simplest use with the defaults - 5 attempts, 0.02 to 1 second delay, 0.2 jitter
+(expressed as a proportion of the given time - i.e. plus or minus 20%), catching
+`StandardError`:
+
+```ruby
+begin
+  Reattempt::Retry.new.each do |try|
+    poke_remote_api
+  end
+rescue RetriesExceeded => e
+  handle_repeated_failure(e.cause)
+end
+```
+
 ## Usage
 
 Reattempt consists of two main classes:
@@ -53,7 +69,7 @@ sleeping as per a configured `Backoff` instance.
 
 ```ruby
 bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
-try = Reattempt::Retry.new(retries: 5, catch: TempError, backoff: bo)
+try = Reattempt::Retry.new(tries: 5, rescue: TempError, backoff: bo)
 begin
   try.each do |attempt|
     raise TempError, "Failed in attempt #{attempt}"
