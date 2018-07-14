@@ -42,7 +42,9 @@ bo.each do |delay|
 end
 ```
 
-The iterator is unbounded.
+The iterator is unbounded - the above script will get stuck in the final loop,
+which might be useful if you *really* want whatever you're doing in it to
+succeed, eventually.
 
 ### Retry
 
