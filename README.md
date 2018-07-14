@@ -21,12 +21,12 @@ Or install it yourself as:
 ## Synopsis
 
 Simplest use with the defaults - 5 attempts, 0.02 to 1 second delay, 0.2 jitter
-(expressed as a proportion of the given time - i.e. plus or minus 20%), catching
+(expressed as a proportion of the given time to randomise), catching
 `StandardError`:
 
 ```ruby
 begin
-  Reattempt::Retry.new.each do |try|
+  Reattempt::Retry.new.each do
     poke_remote_api
   end
 rescue RetriesExceeded => e
