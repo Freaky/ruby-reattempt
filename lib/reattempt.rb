@@ -71,7 +71,7 @@ module Reattempt
   # Example:
   # ```ruby
   # bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
-  # try = Reattempt::Retry.new(retries: 5, catch: TempError, backoff: bo)
+  # try = Reattempt::Retry.new(tries: 5, rescue: TempError, backoff: bo)
   # begin
   #   try.each do |attempt|
   #     raise TempError, "Failed in attempt #{attempt}"
@@ -84,11 +84,11 @@ module Reattempt
     include Enumerable
     extend Dry::Initializer
 
-    option :retries,
+    option :tries,
            default: -> { 5 },
-           type: Dry::Types['strict.integer'].constrained(gt: 0)
+           type: Dry::Types['strict.integer'].constrained(gteq: 0)
 
-    option :catch,
+    option :rescue,
            default: -> { StandardError },
            type: Dry::Types['coercible.array'].constrained(min_size: 1)
                  .of(Dry::Types::Any.constrained(attr: :===))
@@ -101,17 +101,17 @@ module Reattempt
            default: -> { method(:sleep) },
            type: Dry::Types::Any.constrained(attr: :call)
 
-    option :on_catch,
+    option :rescue_proc,
            default: -> { ->(_ex) {} },
            type: Dry::Types::Any.constrained(attr: :call)
 
     # Yield the block with the current attempt number, starting from 1.
     #
-    # If any of the configured +catch+ exceptions are raised (as matched by
-    # +===+), call +on_catch+ with the exception, call +sleep_proc+ with the
+    # If any of the configured +rescue+ exceptions are raised (as matched by
+    # +===+), call +rescue_proc+ with the exception, call +sleep_proc+ with the
     # delay as configured by +backoff+, and try again up to +retries+ times.
     #
-    # +on_catch+ defaults to a no-op.
+    # +rescue_proc+ defaults to a no-op.
     #
     # +sleep_proc+ defaults to +Kernel#sleep+.
     #
@@ -123,12 +123,12 @@ module Reattempt
       last_exception = nil
 
       # rubocop:disable Lint/RescueException, Style/CaseEquality
-      backoff.lazy.take(retries).each_with_index do |delay, try|
+      backoff.lazy.take(tries).each_with_index do |delay, try|
         return yield(try + 1)
       rescue Exception => e
-        raise unless catch.find { |ex| ex === e }
+        raise unless self.rescue.find { |ex| ex === e }
         last_exception = e
-        on_catch.call e
+        rescue_proc.call e
         sleep_proc.call delay
       end
       # rubocop:enable Lint/RescueException, Style/CaseEquality
