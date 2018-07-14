@@ -126,7 +126,6 @@ module Reattempt
 
       last_exception = nil
 
-      # rubocop:disable Lint/RescueException, Style/CaseEquality
       backoff.lazy.take(tries).each_with_index do |delay, try|
         return yield(try + 1)
       rescue Exception => e
@@ -135,7 +134,6 @@ module Reattempt
         rescue_proc.call e
         sleep_proc.call delay
       end
-      # rubocop:enable Lint/RescueException, Style/CaseEquality
 
       raise RetriesExceeded, cause: last_exception
     end
