@@ -87,15 +87,29 @@ module Reattempt
     option :catch,
            default: -> { StandardError },
            type: Dry::Types['coercible.array'].constrained(min_size: 1)
+                 .of(Dry::Types::Any.constrained(attr: :===))
 
     option :backoff,
            default: -> { Backoff.new },
            type: Dry::Types::Definition.new(Backoff).constrained(type: Backoff)
 
+    option :sleep_proc,
+           default: -> { method(:sleep) },
+           type: Dry::Types::Any.constrained(attr: :call)
+
+    option :on_catch,
+           default: -> { ->(_ex) {} },
+           type: Dry::Types::Any.constrained(attr: :call)
+
     # Yield the block with the current attempt number, starting from 1.
     #
-    # If any of the configured +catch+ exceptions are raised, sleep for the
-    # delay as configured by +backoff+ and try again up to +retries+.
+    # If any of the configured +catch+ exceptions are raised, call +on_catch+
+    # with the exception, call +sleep_proc+ with the delay as configured by
+    # +backoff+, and try again up to +retries+ times.
+    #
+    # +on_catch+ defaults to a no-op.
+    #
+    # +sleep_proc+ defaults to +Kernel#sleep+
     #
     # Raise +RetriesExceeded+ when the count is exceeded, setting +cause+ to
     # the previous exception.
@@ -110,7 +124,8 @@ module Reattempt
       rescue Exception => e
         raise unless catch.find { |ex| ex === e }
         last_exception = e
-        sleep delay
+        on_catch.call e
+        sleep_proc.call delay
       end
       # rubocop:enable Lint/RescueException, Style/CaseEquality
 
