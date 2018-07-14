@@ -21,8 +21,7 @@ Or install it yourself as:
 ## Synopsis
 
 Simplest use with the defaults - 5 attempts, 0.02 to 1 second delay, 0.2 jitter
-(expressed as a proportion of the given time to randomise), catching
-`StandardError`:
+(delay is randomised ±10%), catching `StandardError`:
 
 ```ruby
 begin
