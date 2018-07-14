@@ -28,15 +28,19 @@ module Reattempt
 
     option :min_delay,
            default: -> { 0.02 },
-           type: Dry::Types['strict.float'].constrained(gteq: 0)
+           type: Dry::Types['coercible.float'].constrained(gteq: 0)
 
     option :max_delay,
            default: -> { 1.0 },
-           type: Dry::Types['strict.float'].constrained(gteq: 0)
+           type: Dry::Types['coercible.float'].constrained(gteq: 0)
 
     option :jitter,
            default: -> { 0.2 },
-           type: Dry::Types['strict.float'].constrained(lt: 1, gteq: 0)
+           type: Dry::Types['coercible.float'].constrained(lt: 1, gteq: 0)
+
+    option :factor,
+           default: -> { 2 },
+           type: Dry::Types['coercible.float'].constrained(gt: 0)
 
     # Iterate over calls to +delay_for_attempt+ with a counter.  If no block
     # given, return an +Enumerator+.
@@ -52,7 +56,7 @@ module Reattempt
     #
     # Aliased to +[]+
     def delay_for_attempt(try)
-      delay = (min_delay * (1 << try)).clamp(min_delay, max_delay)
+      delay = (min_delay * (factor ** try)).clamp(min_delay, max_delay)
       delay * Random.rand(jitter_range)
     end
 
