@@ -1,6 +1,6 @@
 # Reattempt
 
-Yet another Ruby gem to implement retries with backoff.
+Yet another Ruby gem to implement retries with backoff and jitter.
 
 ## Installation
 
@@ -28,11 +28,18 @@ Reattempt consists of two main classes:
 `Enumerable`:
 
 ```ruby
-# Start delay 0.05-0.15 seconds, increasing to 0.5-2.0
+# Start delay 0.075-0.125 seconds, increasing to 0.75-1.25 seconds
 bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
-bo.take(4).map { |x| x.round(4) } # => [0.1151, 0.1853, 0.4972, 0.9316]
+
+bo.take(4).map { |x| x.round(4) } # => [0.1138, 0.2029, 0.4227, 0.646]
 bo.take(2).each { |delay| sleep delay }
-bo.delay_for_attempt(4) # => 0.9431
+bo.delay_for_attempt(4) # => 1.0403524624141058
+bo[4] # => 0.8328055668923606
+
+bo.each do |delay|
+  printf("Sleeping for about %.2f seconds\n", delay)
+  sleep delay
+end
 ```
 
 The iterator is unbounded.
