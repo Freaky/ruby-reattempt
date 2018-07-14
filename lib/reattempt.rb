@@ -8,8 +8,8 @@ require 'dry-types'
 module Reattempt
   RetriesExceeded = Class.new(StandardError)
 
-  # Calculate exponential backoff times between min_delay and max_delay,
-  # with jitter of between 0 and 1.
+  # Calculate exponential backoff times between +min_delay+ and +max_delay+,
+  # with +jitter+ of between 0 and 1 and +factor+ of, by default, 2.
   #
   # Minimum delay is min_delay * jitter / 2, maximum is max_delay * jitter / 2.
   #
@@ -18,7 +18,7 @@ module Reattempt
   # Example:
   #
   # ```ruby
-  # # Start delay 0.05-0.15 seconds, increasing to 0.5-2.0
+  # # Start delay 0.075-0.125 seconds, doubling to a limit of 0.75-1.25
   # bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
   # bo.take(4).map { |x| x.round(4) } # => [0.1151, 0.1853, 0.4972, 0.9316]
   # ```
