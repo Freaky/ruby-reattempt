@@ -95,7 +95,7 @@ module Reattempt
     option :rescue,
            default: -> { StandardError },
            type: Dry::Types['coercible.array'].constrained(min_size: 1)
-                 .of(Dry::Types::Any.constrained(attr: :===))
+                           .of(Dry::Types::Any.constrained(attr: :===))
 
     option :backoff,
            default: -> { Backoff.new },
