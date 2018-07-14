@@ -28,7 +28,7 @@ begin
   Reattempt::Retry.new.each do
     poke_remote_api
   end
-rescue RetriesExceeded => e
+rescue Reattempt::RetriesExceeded => e
   handle_repeated_failure(e.cause)
 end
 ```
