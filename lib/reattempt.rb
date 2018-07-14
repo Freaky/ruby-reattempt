@@ -103,13 +103,13 @@ module Reattempt
 
     # Yield the block with the current attempt number, starting from 1.
     #
-    # If any of the configured +catch+ exceptions are raised, call +on_catch+
-    # with the exception, call +sleep_proc+ with the delay as configured by
-    # +backoff+, and try again up to +retries+ times.
+    # If any of the configured +catch+ exceptions are raised (as matched by
+    # +===+), call +on_catch+ with the exception, call +sleep_proc+ with the
+    # delay as configured by +backoff+, and try again up to +retries+ times.
     #
     # +on_catch+ defaults to a no-op.
     #
-    # +sleep_proc+ defaults to +Kernel#sleep+
+    # +sleep_proc+ defaults to +Kernel#sleep+.
     #
     # Raise +RetriesExceeded+ when the count is exceeded, setting +cause+ to
     # the previous exception.
