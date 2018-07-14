@@ -49,10 +49,14 @@ module Reattempt
     end
 
     # Calculate a randomised delay for attempt number +try+, starting from 0.
+    #
+    # Aliased to +[]+
     def delay_for_attempt(try)
       delay = (min_delay * (1 << try)).clamp(min_delay, max_delay)
       delay * Random.rand(jitter_range)
     end
+
+    alias [] delay_for_attempt
 
     private
 
