@@ -8,7 +8,7 @@ require 'dry-types'
 module Reattempt
   RetriesExceeded = Class.new(StandardError)
 
-  # Calculate exponential backup times, between min_delay and max_delay,
+  # Calculate exponential backoff times between min_delay and max_delay,
   # with jitter of between 0 and 1.
   #
   # Minimum delay is min_delay * jitter / 2, maximum is max_delay * jitter / 2.
