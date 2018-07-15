@@ -24,7 +24,7 @@ module Reattempt
   # ```
   class Backoff
     include Enumerable
-    extend Dry::Initializer
+    extend Dry::Initializer[undefined: false]
 
     option :min_delay,
            default: -> { 0.02 },
@@ -86,7 +86,7 @@ module Reattempt
   # ```
   class Retry
     include Enumerable
-    extend Dry::Initializer
+    extend Dry::Initializer[undefined: false]
 
     option :tries,
            default: -> { 5 },
