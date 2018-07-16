@@ -126,18 +126,17 @@ module Reattempt
     def each
       return enum_for(:each) unless block_given?
 
-      last_exception = nil
+      ex = nil
 
       backoff.lazy.take(tries).each_with_index do |delay, try|
         return yield(try + 1)
-      rescue Exception => e
-        raise unless self.rescue.any? { |ex| ex === e }
-        last_exception = e
-        rescue_proc.call e
+      rescue Exception => ex
+        raise unless self.rescue.any? { |r| r === ex }
+        rescue_proc.call ex
         sleep_proc.call delay
       end
 
-      raise RetriesExceeded, cause: last_exception
+      raise RetriesExceeded, cause: ex
     end
   end
 end
