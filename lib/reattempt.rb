@@ -111,7 +111,9 @@ module Reattempt
            default: -> { ->(_ex) {} },
            type: Dry::Types::Any.constrained(attr: :call)
 
-    # Yield the block with the current attempt number, starting from 1.
+    # Yield the block with the current attempt number, starting from 1, for up
+    # to +tries+ times.  Setting +tries+ to zero will result in an instant
+    # +RetriesExceeded+, which may be useful for testing.
     #
     # If any of the configured +rescue+ exceptions are raised (as matched by
     # +===+), call +rescue_proc+ with the exception, call +sleep_proc+ with the
