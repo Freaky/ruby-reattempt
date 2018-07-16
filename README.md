@@ -73,7 +73,7 @@ begin
   try.each do |attempt|
     raise TempError, "Failed in attempt #{attempt}"
   end
-rescue RetriesExceeded => e
+rescue Reattempt::RetriesExceeded => e
   p e.cause # => #<TempError: "Failed in attempt 5">
 end
 ```
