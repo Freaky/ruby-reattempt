@@ -30,14 +30,15 @@ class ReattemptTest < Minitest::Test
     slept = 0
     except = 0
 
-    rt = Retry.new(sleep_proc: ->(delay) { slept = true;assert_kind_of(Float, delay) },
-                   rescue_proc: ->(ex) { except = true;assert_kind_of(Exception, ex) })
+    rt = Retry.new(tries: 2,
+                   sleep_proc: ->(delay) { slept += 1;assert_kind_of(Float, delay) },
+                   rescue_proc: ->(ex) { except += 1;assert_kind_of(Exception, ex) })
     assert_raises(RetriesExceeded) do
       rt.each { raise "uh oh" }
     end
 
-    assert slept
-    assert except
+    assert_equal slept, 2
+    assert_equal except, 2
 
     rt = Retry.new(tries: 1, rescue: SomeError)
     assert_raises(RetriesExceeded) do
