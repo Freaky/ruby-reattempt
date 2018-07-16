@@ -16,7 +16,7 @@ class ReattemptTest < Minitest::Test
   end
 
   def test_backoff_zero_jitter
-    bo = Backoff.new(jitter: 0.0)
+    bo = Backoff.new(jitter: 0)
     delays = bo.take(100).to_a
     assert_equal delays.min, bo.min_delay
     assert_equal delays.max, bo.max_delay
