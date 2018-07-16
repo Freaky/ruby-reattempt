@@ -104,7 +104,7 @@ module Reattempt
            type: Dry::Types::Definition.new(Backoff).constrained(type: Backoff)
 
     option :sleep_proc,
-           default: -> { method(:sleep) },
+           default: -> { Kernel.method(:sleep) },
            type: Dry::Types::Any.constrained(attr: :call)
 
     option :rescue_proc,
