@@ -27,8 +27,8 @@ class ReattemptTest < Minitest::Test
   OtherError = Class.new(SomeError)
   BrokenError = Class.new(StandardError)
   def test_retry
-  	slept = 0
-  	except = 0
+    slept = 0
+    except = 0
 
     rt = Retry.new(sleep_proc: ->(delay) { slept = true;assert_kind_of(Float, delay) },
                    rescue_proc: ->(ex) { except = true;assert_kind_of(Exception, ex) })
@@ -53,7 +53,13 @@ class ReattemptTest < Minitest::Test
     end
 
     assert_raises(RetriesExceeded) do
-    	Retry.new(tries: 0).each { }
+      Retry.new(tries: 0).each { }
+    end
+
+    begin
+      Retry.new(tries: 1).each { raise SomeError }
+    rescue RetriesExceeded => e
+      assert_kind_of(SomeError, e.cause)
     end
   end
 end
