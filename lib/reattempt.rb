@@ -129,7 +129,7 @@ module Reattempt
       backoff.lazy.take(tries).each_with_index do |delay, try|
         return yield(try + 1)
       rescue Exception => e
-        raise unless self.rescue.find { |ex| ex === e }
+        raise unless self.rescue.any? { |ex| ex === e }
         last_exception = e
         rescue_proc.call e
         sleep_proc.call delay
