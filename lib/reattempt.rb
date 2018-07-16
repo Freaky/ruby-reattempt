@@ -6,6 +6,8 @@ require 'dry-initializer'
 require 'dry-types'
 
 module Reattempt
+  # Exception raised by +Retry.each+, with the error from the loop available
+  # in +RetriesExceeded#cause+.
   RetriesExceeded = Class.new(StandardError)
 
   # Calculate exponential backoff times between +min_delay+ and +max_delay+,
@@ -80,7 +82,7 @@ module Reattempt
   #   try.each do |attempt|
   #     raise TempError, "Failed in attempt #{attempt}"
   #   end
-  # rescue RetriesExceeded => e
+  # rescue Reattempt::RetriesExceeded => e
   #   p e.cause # => #<TempError: "Failed in attempt 5">
   # end
   # ```
