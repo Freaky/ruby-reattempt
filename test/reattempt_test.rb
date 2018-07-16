@@ -54,7 +54,7 @@ class ReattemptTest < Minitest::Test
     end
 
     assert_raises(RetriesExceeded) do
-      Retry.new(tries: 0).each { }
+      Retry.new(tries: 0).each { assert false }
     end
 
     begin
