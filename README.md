@@ -1,6 +1,6 @@
 # Reattempt
 
-Yet another Ruby gem to implement retries with backoff and jitter.
+Simple `Enumerable` APIs offering retries with exponential backoff and jitter.
 
 ## Installation
 
@@ -33,6 +33,10 @@ rescue Reattempt::RetriesExceeded => e
 end
 ```
 
+Instances are thread-safe, and it's suggested that you separate their creation
+from usage: inject them as dependencies, configure them in class attributes,
+store them in constants, etc.
+
 ## Usage
 
 Reattempt consists of two main classes:
@@ -57,9 +61,10 @@ bo.each do |delay|
 end
 ```
 
-The iterator is unbounded - the above script will get stuck in the final loop,
-which might be useful if you *really* want whatever you're doing in it to
-succeed, eventually.
+Note `Backoff` is strictly a *calculator*, it does *not* implement sleep itself.
+
+The iterator is unbounded and you're expected to `take` however many you need,
+or manually exit the loop.
 
 ### Retry
 
@@ -77,9 +82,6 @@ rescue Reattempt::RetriesExceeded => e
   p e.cause # => #<TempError: "Failed in attempt 5">
 end
 ```
-
-It's intended for you to configure these once in your application for each class
-of retry/backoff and share the instances.
 
 ## Development
 
