@@ -9,19 +9,21 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Thomas Hurst"]
   spec.email         = ["tom@hur.st"]
 
-  spec.summary       = %q{Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
-  spec.homepage      = "http://no.com/"
+  spec.summary       = %q{Enumerable retries with exponential backoff}
+  spec.description   = %q{Enumerable APIs for retries and exponential backoff with jitter}
+  spec.homepage      = "https://github.com/Freaky/ruby-reattempt/"
   spec.license       = "MIT"
+
+  spec.required_ruby_version = ">= 2.5"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  # if spec.respond_to?(:metadata)
-  #   spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  # else
-  #   raise "RubyGems 2.0 or newer is required to protect against " \
-  #     "public gem pushes."
-  # end
+  if spec.respond_to?(:metadata)
+    spec.metadata["allowed_push_host"] = "https://rubygems.org"
+  else
+    raise "RubyGems 2.0 or newer is required to protect against " \
+      "public gem pushes."
+  end
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
