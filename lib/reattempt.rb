@@ -114,7 +114,7 @@ module Reattempt
 
     option :backoff,
            default: -> { Backoff.new },
-           type: Dry::Types::Definition.new(Backoff).constrained(type: Backoff)
+           type: Dry::Types::Definition.new(Backoff).constrained(type: Enumerable)
 
     option :sleep_proc,
            default: -> { Kernel.method(:sleep) },
