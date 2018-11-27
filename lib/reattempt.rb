@@ -17,16 +17,20 @@ module Reattempt
   #
   # Instances are +Enumerable+.
   #
-  # Example:
-  #
-  # ```ruby
-  # # Start delay 0.075-0.125 seconds, doubling to a limit of 0.75-1.25
-  # bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
-  # bo.take(4).map { |x| x.round(4) } # => [0.1151, 0.1853, 0.4972, 0.9316]
-  # ```
+  # @example
+  #   # Start delay 0.075-0.125 seconds, doubling to a limit of 0.75-1.25
+  #   bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
+  #   bo.take(4).map { |x| x.round(4) } # => [0.1151, 0.1853, 0.4972, 0.9316]
   class Backoff
     include Enumerable
     extend Dry::Initializer[undefined: false]
+
+    # @!method initialize(min_delay: 0.02, max_delay: 1.0, jitter: 0.2, factor: 2)
+    #
+    #   @param min_delay [Float] minimum time between retries in seconds
+    #   @param max_delay [Float] maximum time between retries in seconds
+    #   @param jitter [Float] randomised fraction of the sleep time to be added or subtracted
+    #   @param factor [Float] control how fast the delay increases
 
     option :min_delay,
            default: -> { 0.02 },
@@ -57,6 +61,9 @@ module Reattempt
     # Calculate a randomised delay for attempt number +try+, starting from 0.
     #
     # Aliased to +[]+
+    #
+    # @param try [Integer] The current attempt number, from 1
+    # @return [Float] number of seconds to sleep for if the attempt fails
     def delay_for_attempt(try)
       delay = (min_delay * (factor ** try)).clamp(min_delay, max_delay)
       delay * Random.rand(jitter_range)
@@ -74,21 +81,27 @@ module Reattempt
   # Retry the loop iterator if configured caught exceptions are raised and retry
   # count is not exceeded, sleeping as per a given backoff configuration.
   #
-  # Example:
-  # ```ruby
-  # bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
-  # try = Reattempt::Retry.new(tries: 5, rescue: TempError, backoff: bo)
-  # begin
-  #   try.each do |attempt|
-  #     raise TempError, "Failed in attempt #{attempt}"
+  # @example
+  #   bo = Reattempt::Backoff.new(min_delay: 0.1, max_delay: 1.0, jitter: 0.5)
+  #   try = Reattempt::Retry.new(tries: 5, rescue: TempError, backoff: bo)
+  #   begin
+  #     try.each do |attempt|
+  #       raise TempError, "Failed in attempt #{attempt}"
+  #     end
+  #   rescue Reattempt::RetriesExceeded => e
+  #     p e.cause # => #<TempError: "Failed in attempt 5">
   #   end
-  # rescue Reattempt::RetriesExceeded => e
-  #   p e.cause # => #<TempError: "Failed in attempt 5">
-  # end
-  # ```
   class Retry
     include Enumerable
     extend Dry::Initializer[undefined: false]
+
+    # @!method initialize(tries: 5, rescue: StandardError, backoff: Backoff.new, sleep_proc: Kernel.method(:sleep), rescue_proc: ->(_) {})
+    #
+    #   @param tries [Integer] the number of attempts, including the first
+    #   @param rescue [#===, Array<#===>] matchers for raised exceptions to retry
+    #   @param backoff [Backoff] a +Backoff+ instance or a custom work-alike to generate sleep times
+    #   @param sleep_proc [#call] a handler for the number of seconds to sleep
+    #   @param rescue_proc [#call] a handler for rescues
 
     option :tries,
            default: -> { 5 },
@@ -123,8 +136,7 @@ module Reattempt
     #
     # +sleep_proc+ defaults to +Kernel#sleep+.
     #
-    # Raise +RetriesExceeded+ when the count is exceeded, setting +cause+ to
-    # the previous exception.
+    # @raise [Reattempt::RetriesExceeded] see +cause+ for the original exception
     def each
       return enum_for(:each) unless block_given?
 
