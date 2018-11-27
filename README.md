@@ -83,6 +83,17 @@ rescue Reattempt::RetriesExceeded => e
 end
 ```
 
+`rescue` is coerced to an array, and its contents are simply expected to
+respond to `===`, so you can do complex matching like this:
+
+```ruby
+exception_matcher = ->(ex) do
+  ex.is_a?(IOError) && ex.message.includes?('closed stream')
+end
+
+try = Reattempt::Retry.new(rescue: [exception_matcher, SomeOtherException])
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
