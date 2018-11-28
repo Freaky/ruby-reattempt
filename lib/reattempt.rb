@@ -31,6 +31,7 @@ module Reattempt
     #   @param max_delay [Float] maximum time between retries in seconds
     #   @param jitter [Float] randomised fraction of the sleep time to be added or subtracted
     #   @param factor [Float] control how fast the delay increases
+    #   @return [Backoff]
 
     option :min_delay,
            default: -> { 0.02 },
@@ -50,6 +51,8 @@ module Reattempt
 
     # Iterate over calls to +delay_for_attempt+ with a counter.  If no block
     # given, return an +Enumerator+.
+    #
+    # @return [Enumerable]
     def each
       return enum_for(:each) unless block_given?
 
@@ -99,9 +102,10 @@ module Reattempt
     #
     #   @param tries [Integer] the number of attempts, including the first
     #   @param rescue [#===, Array<#===>] matchers for raised exceptions to retry
-    #   @param backoff [Backoff] a +Backoff+ instance or a custom work-alike to generate sleep times
-    #   @param sleep_proc [#call] a handler for the number of seconds to sleep
-    #   @param rescue_proc [#call] a handler for rescues
+    #   @param backoff [Backoff,Enumerable] a +Backoff+ instance or a custom work-alike to generate sleep times
+    #   @param sleep_proc [#call] a custom handler for the number of seconds to sleep
+    #   @param rescue_proc [#call] a custom handler for rescued exceptions (e.g. for logging)
+    #   @return [Retry]
 
     option :tries,
            default: -> { 5 },
@@ -137,6 +141,7 @@ module Reattempt
     # +sleep_proc+ defaults to +Kernel#sleep+.
     #
     # @raise [Reattempt::RetriesExceeded] see +cause+ for the original exception
+    # @return [Enumerable]
     def each
       return enum_for(:each) unless block_given?
 
