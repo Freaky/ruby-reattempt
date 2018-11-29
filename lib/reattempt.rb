@@ -52,7 +52,8 @@ module Reattempt
     # Iterate over calls to +delay_for_attempt+ with a counter.  If no block
     # given, return an +Enumerator+.
     #
-    # @return [Enumerable]
+    # @yieldparam [Float] seconds number of seconds to sleep
+    # @return [nil, Enumerator] if no block given
     def each
       return enum_for(:each) unless block_given?
 
@@ -140,8 +141,9 @@ module Reattempt
     #
     # +sleep_proc+ defaults to +Kernel#sleep+.
     #
+    # @yieldparam [Integer] try the current attempt number, starting at 1
     # @raise [Reattempt::RetriesExceeded] see +cause+ for the original exception
-    # @return [Enumerable]
+    # @return [nil, Enumerator]
     def each
       return enum_for(:each) unless block_given?
 
@@ -151,6 +153,7 @@ module Reattempt
         return yield(try + 1)
       rescue Exception => ex
         raise unless self.rescue.any? { |r| r === ex }
+
         rescue_proc.call ex
         sleep_proc.call delay
       end
